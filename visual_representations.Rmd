@@ -1,0 +1,125 @@
+---
+title: "HW5stat"
+author: "Nathan Mehta"
+date: "9/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+## data
+```{r}
+data5d<-read.csv("Downloads/data.8.32.txt")
+```
+
+```{r}
+head(data5d)
+xbar<-mean(data5d$X5.3299)
+xbar
+```
+```{r}
+data5d$X5.3299<-(data5d$X5.3299)**2
+head(data5d)
+second_moment<-mean(data5d$X5.3299)
+sigma_est<-second_moment-(xbar)**2
+sigma_est
+
+```
+```{r}
+sqrt(3.208/16)
+c<-(sigma_est**2)/256
+c
+```
+
+
+
+
+
+## data
+```{r}
+class<-read.csv("Downloads/data.scores.txt")
+```
+
+
+```{r}
+class1<-class[class > 0]
+class2<-data.frame(class1)
+```
+```{r}
+library("tidyr")
+```
+```{r}
+class2<-class2%>%separate(class1,c("final","midterm")," ")
+```
+```{r}
+class2$final<-as.numeric(class2$final)
+class2$midterm<-as.numeric(class2$midterm)*2
+```
+```{r}
+class2 <- class2[,c(2,1)]
+```
+
+
+## histogram
+```{r}
+hist_final<-class2%>%ggplot(aes(x=final))+geom_histogram(aes(y=..density..))
+hist_midterm<-class2%>%ggplot(aes(x=midterm))+geom_histogram(aes(y=..density..))
+hist_midterm
+hist_final
+```
+## box
+```{r}
+box_final<-class2%>%ggplot(aes(x=final))+geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2)
+box_midterm<-class2%>%ggplot(aes(x=midterm))+geom_boxplot(outlier.colour="black", outlier.shape=16, outlier.size=2)
+box_final
+box_midterm
+```
+## QQ
+```{r}
+sample<-rnorm(500,10,3)
+quant<-qqnorm(sample)
+quant
+```
+The plot looks linear
+## 5H b
+```{r}
+quant_plot_final<-qqnorm(class2$final)
+```
+The normal quantile plot is less linear, and curves above the theoretical=sample line at around the final exam score of 30. This means that the quantiles at around 30 are higher than would be estimates by the normal distribution. This is in line with our findings from the histogram as there is a spike in scores at around 30. 
+
+## Stem
+
+```{r}
+stem.1<-stem(class2$final)
+stem.2<-stem(class2$final,scale =.5)
+stem.3<-stem(class2$final,scale =2)
+stem.1
+stem.2
+stem.3     #Scale of 2 is the best summary because it increases the stems. An increase of the stems is analagous to an increase in number of bins on the histogram. An increase in stems increases the number of the partitions in the dataset, giving more information on how the data is distributed.
+```
+
+Scale of 2 is the best summary because it increases the stems. An increase of the stems is analagous to an increase in number of bins on the histogram. An increase in stems increases the number of the partitions in the dataset, giving more information on how the data is distributed.
+
+## Plot
+```{r}
+plot1<-class2%>%ggplot(aes(x=midterm,y=final))+geom_point()+geom_line(aes(x=midterm,y=midterm))
+plot1
+```
+The percent who gained is higher because more than 50 percent of the data seems to be above the y=x line
+## Deduce
+```{r}
+is_final_greater <- ifelse(class2$final > class2$midterm, 1,0)
+sum(is_final_greater)
+```
+
+## Use as predictor?
+I wouldn't use the midterm scores as a predictor of final exam scores since more than half of students final scores were greater than their midterm scores. I would multiply the midterm scores by a factor greater than one for a steeper, positive slope.
+
+
