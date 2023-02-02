@@ -1,0 +1,165 @@
+---
+title: "HW8"
+author: "Nathan Mehta"
+date: "11/2/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## chi sq 
+```{r}
+table_exper<-matrix(c(165,95,152,52,85,52,67,35,85,37),ncol=2,nrow=5,byrow=TRUE)
+table_exper
+```
+
+```{r}
+colnames(table_exper)<-c("n of patients", "n of nausea")
+rownames(table_exper)<-c("placebo","chlor","dimen","pento 100","pento 150")
+```
+
+```{r}
+chisq.test(table_exper)
+```
+Here we are testing to see if the multinomial distribution is consisitent across all the drugs. The null hypothesis, H0: all the drugs and the placebo follow the same multinoimial distribution with the same probabilities (probability of nausea ) 
+
+alt hyp: all the drugs have different MN distributions with different probabilities of nausea. 
+
+with chi squared statistic 8.683 we fail to reject the null. (difference between observed nausea levels and expected for each drug not extreme enough to reject under null)
+
+
+```{r}
+pnorm(0,mean= -1, sd=2)
+```
+## permutation method for different samples
+h0: sample means of method A and B are equal
+h1: sample means are different 
+```{r}
+meth_a<-c(79.98,80.04,80.02,80.04,80.03,80.03,80.04,79.97,80.05,80.03,80.02,80.00,80.02)
+meth_b<-c(80.02,79.94,79.98,79.97,79.97,80.03,79.95,79.7)
+df_29<-c(meth_a,meth_b)
+obs_diff<-mean(meth_a)-mean(meth_b)
+chosen_partitions<-1000
+diff__samples<-NULL
+for(i in 1:chosen_partitions){
+  meth_a__<-sample(df_29,length(meth_a),TRUE)
+  meth_b__<-sample(df_29,length(meth_b),TRUE)
+  diff__samples[i]=mean(meth_a__)-mean(meth_b__)
+}
+pval<-sum(abs(diff__samples)>=abs(obs_diff))/chosen_partitions
+pval
+hist(diff__samples)
+```
+with a p-value of .02, the permutation method concludes that the samples have different means. This p-value is more extreme than that of the t-test. 
+b)the mann-whitney is similar in the way that both look to show whether the two groups are identical in distribution. 
+## dot plots
+```{r}
+library(tidyverse)
+```
+
+```{r}
+df__<-`11.40`
+df__%>%ggplot(aes(x=present))+geom_dotplot()
+```
+```{r}
+df__%>%ggplot(aes(x=absent))+geom_dotplot()
+```
+## t tests
+#b
+```{r}
+sdx<-sd(df__$present)
+sdy<-sd(df__$absent)
+var__x<-sdx**2
+var__y<-sdy**2
+sqrt((var__x/10) + (var__y/10))
+mean(df__$present)
+mean(df__$absent)
+```
+#c
+```{r}
+t.test(df__$present,df__$absent,var.equal = F)
+```
+p-val= 0.001995
+
+## non parametric
+```{r}
+difference<-df__$present-df__$absent
+wilcoxtest <- wilcox.test(difference)
+pval_diff_nonpara <- wilcoxtest$p.value
+pval_diff_nonpara
+```
+the assumptions are that the distributions of the weight gains for treatment and control groups (present and absent) do not follow normal distributions.
+
+H0: treatment doesn't work (present dist=absent dist)
+h1: treatment cause change in mean weight gain
+## more t testing
+#a
+```{r}
+males_temp<-bodytemp%>%filter(gender==1)%>%select(temperature)
+males_temp<-males_temp$temperature
+fem_temp<-bodytemp%>%filter(gender==2)%>%select(temperature)
+fem_temp<-fem_temp$temperature
+qqnorm(males_temp)
+qqnorm(fem_temp)
+```
+t-test can be used because the two samples fro males and females follow the normal distribution quantiles. can assume that the male and fem populations follow normal temp distributions
+
+```{r}
+xbar<-mean(males_temp)
+ybar<-mean(fem_temp)
+xbar-ybar
+length(males_temp)
+length(fem_temp)
+x_var<-sd(males_temp)**2
+y_var<-sd(fem_temp)**2
+sqrt((x_var/65)+(y_var/65))
+```
+#b
+```{r}
+males_rate<-bodytemp%>%filter(gender==1)%>%select(rate)
+males_rate<-males_rate$rate
+fem_rate<-bodytemp%>%filter(gender==2)%>%select(rate)
+fem_rate<-fem_rate$rate
+qqnorm(males_rate)
+qqnorm(fem_rate)
+```
+t-test can be used because the two samples fro males and females follow the normal distribution quantiles. can assume that the male and fem populations follow normal rate distributions.
+
+```{r}
+xbar_rate<-mean(males_rate)
+xbar_rate
+ybar_rate<-mean(fem_rate)
+ybar_rate
+xbar_rate-ybar_rate
+length(males_rate)
+length(fem_rate)
+x_ratevar<-sd(males_rate)**2
+y_ratevar<-sd(fem_rate)**2
+sqrt((x_ratevar/65)+(y_ratevar/65))
+```
+
+```{r}
+t.test(males_rate,fem_rate,var.equal = F)
+```
+#c
+```{r}
+difference<-males_temp-fem_temp
+wilcoxtest <- wilcox.test(difference)
+pval_diff_nonpara <- wilcoxtest$p.value
+pval_diff_nonpara
+```
+H0:females and males have same distr. of temp.
+h1: they have different dist.
+reject null with p-value stated above
+```{r}
+difference<-males_rate-fem_rate
+wilcoxtest <- wilcox.test(difference)
+pval_diff_nonpara <- wilcoxtest$p.value
+pval_diff_nonpara
+```
+H0:females and males have same distr. of rates.
+h1: they have different dist. of rates
+
+fail to reject the null with p-value of .6
