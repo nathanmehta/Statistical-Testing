@@ -1,0 +1,123 @@
+---
+title: "T and rank sum"
+author: "Nathan Mehta"
+date: "11/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## data
+```{r}
+y1.<-c(0.28,0.51,1.00,0.39,0.29,0.36,0.32,0.69,0.17,0.33)
+qqnorm(y1.)
+y2.<-c(0.30,0.39,0.63,0.68,0.38,0.21,0.88,0.39,0.51,0.32)
+qqnorm(y2.)
+y3.<-c(1.07,1.35,0.69,0.28,1.24,1.53,0.49,0.56,1.02,0.30)
+qqnorm(y3.)
+#all 3 plots follow a straight line closely, making normal approximations relevant for each group
+```
+```{r}
+groups<-c(rep("T1",10),rep("T2",10),rep("T3",10))
+dataset<-c(y1.,y2.,y3.)
+df_tidy<-data.frame(groups,dataset)
+oneway.test(dataset~groups,var.equal = TRUE)
+```
+
+## calculate SSB
+```{r}
+y1.mean<-mean(c(0.28,0.51,1.00,0.39,0.29,0.36,0.32,0.69,0.17,0.33))
+```
+```{r}
+y2.mean<-mean(c(0.30,0.39,0.63,0.68,0.38,0.21,0.88,0.39,0.51,0.32))
+```
+```{r}
+y3.mean<-mean(c(1.07,1.35,0.69,0.28,1.24,1.53,0.49,0.56,1.02,0.30))
+```
+```{r}
+mean(y1.mean,y2.mean,y3.mean)
+10*(.469-.434)+(10*(.853-.434))
+```
+```{r}
+sa<-sd(c(0.28,0.51,1.00,0.39,0.29,0.36,0.32,0.69,0.17,0.33))
+sb<-sd(c(0.30,0.39,0.63,0.68,0.38,0.21,0.88,0.39,0.51,0.32))
+sc<-sd(c(1.07,1.35,0.69,0.28,1.24,1.53,0.49,0.56,1.02,0.30))
+sa
+sb
+sc
+```
+```{r}
+##SSW
+(9*(sa**2) + 9*(sb**2) + 9*(sc**2))
+```
+```{r}
+1-pf(22.7,2,11.72)
+```
+## nonparam:
+```{r}
+groups_<-c(rep(1,10),rep(2,10),rep(3,10))
+total_data<-c(y1.,y2.,y3.)
+kruskal.test(total_data~groups_)
+
+```
+
+
+
+
+
+## calculations pairwise
+```{r}
+sd(aj$V1)
+sd(f2$V1)
+sd(c57$V1)
+ajmean<-mean(aj$V1)
+f2mean<-mean(f2$V1)
+c57mean<-mean(c57$V1)
+```
+```{r}
+ajmean-f2mean
+ajmean-c57mean
+c57mean-f2mean
+```
+```{r}
+2*(1-pt(5.493,df=131))
+2*(1-pt(15.435,df=131))
+2*(1-pt(7.3416,df=131))
+```
+## pair t tests
+```{r}
+type1<-c(1.7, 1.9, 6.1,12.5, 16.5, 25.1, 30.5, 42.1, 82.5)
+type2<-c(13.6, 19.8, 25.2, 46.2, 46.2, 61.1)
+type3<-c(13.4, 20.9, 25.1, 29.7, 46.9)
+groups<-c(rep("T1",9),rep("T2",6),rep("T3",5))
+typedata<-c(type1,type2,type3)
+df_tidy<-data.frame(groups,typedata)
+```
+```{r}
+pairwise.t.test(df_tidy$typedata,df_tidy$groups,p.adjust="none")
+```
+H0: the two means in a t-test are the same
+H1: the two means are different
+comparing .34,.81, and .53 with alpha/3=.017, since all the p-values are greater, this says that we fail to reject the null for all 3 t-tests. the means of each group is the same.
+## nonparam:
+```{r}
+library(tidyverse)
+```
+```{r}
+df_tidy<-df_tidy%>%mutate(ranks=rank(typedata))
+mean_rank_df<-df_tidy%>%group_by(groups)%>% summarize(mean_rank=mean(ranks))
+joined_df<-df_tidy%>%
+  left_join(mean_rank_df)%>%
+  mutate(tot_mean=mean(mean_rank))%>%
+  mutate(diff_sq=(mean_rank-tot_mean)^2)
+joined_df
+```
+```{r}
+SSB<-sum(joined_df$diff_sq)
+K<-(12/(20*(20+1)))*SSB
+1-pchisq(K,df=2)
+```
+since p-val > .05, we accept the null that all three types have the same distribution
+
