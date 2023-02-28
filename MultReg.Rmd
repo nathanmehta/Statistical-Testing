@@ -1,0 +1,71 @@
+---
+title: "Mult Reg"
+author: "Nathan Mehta"
+date: "10/19/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+pnt.in<-read.table("Downloads/pnt_pat.txt",T)
+pnt_pat <- tibble(pnt.in) %>%  
+   filter(wabaq != "NULL", 
+        ethnicgp %in% c("AA","C"), 
+        dx %in% c("Conduction", "Broca")) %>%  
+   select(registry, wabaq, dx, ethnicgp, gender) %>%    
+ unique() 
+```
+
+```{r}
+class(pnt_pat$wabaq)
+pnt_pat
+```
+
+##2
+```{r}
+lm.aphasia<-lm(wabaq~dx*ethnicgp,data=pnt_pat)
+summary(lm.aphasia)
+```
+##3
+The predicted aphasia quotient of an African American individual with Broca's aphasia equals the intercept.  
+
+The predicted aphasia quotient of an African American individual with Conduction aphasia is the model intercept + 18.574
+
+The predicted aphasia quotient of a Caucasian with Broca's aphasia is the intercept + .488
+
+The predicted aphasia quotient of a Caucasian with Conduction aphasia is the intercept + 18.574 + .488 -3.159
+##4
+```{r}
+pnt_pat %>% filter(ethnicgp %in% c("AA","C"), 
+                   dx %in% c("Conduction", "Broca")) %>%  
+  ggplot() + 
+  aes(x = dx, color = ethnicgp, group = ethnicgp, y = wabaq) + 
+  geom_smooth(method = 'lm')
+```
+There is no significance in the interaction of ethnicgp and dx because of the colinearity showed by the graph above. The AA and C regression lines (regressing wabaq onto dx) show similar upward trends at a similar slope, which suggests that ethnicgp and aphasia type do not affect each other significantly.
+
+##5
+```{r}
+pnt_pat <- tibble(pnt.in) %>%  
+   filter(wabaq != "NULL", 
+        gender %in% c("F","M"), 
+            dx %in% c("Conduction", "Broca")) %>%  
+   select(registry, wabaq, dx, ethnicgp, gender) %>%    
+ unique() 
+```
+
+```{r}
+lm.aphasia2<-lm(wabaq~dx*gender,data=pnt_pat)
+summary(lm.aphasia2)
+```
+
+This model suggests an insignificant interaction between gender and aphasia type as predictors of aphasia severity, with a p-value of .669. Individuals classified as M experience on average a 1.6 decrease in severity when having Broca's type. Individuals classified as having Conduction type severity experience a 18 point increase in severity when they are female.
