@@ -7,3 +7,4 @@ Working on execution of certain statistical tests
 
 ## t_rank_sum : non-parametric, (rank sum) tests for distribution fit
 
+## visualzations: boxplot, leafplot, etc
