@@ -1,10 +1,14 @@
 # Statistical-Testing
 Working on execution of certain statistical tests
 
-## MultLinReg : multiple linear Regression in R
+## MultLinReg.Rmd : 
+multiple linear Regression in R
 
-## chi-sq : Chi Square tests for independence in R
+## chi-sq.rmd : 
+Chi Square tests for independence in R
 
-## t_rank_sum : non-parametric, (rank sum) tests for distribution fit
+## t_rank_sum.rmd : 
+non-parametric, (rank sum) tests for distribution fit
 
-## visualzations: boxplot, leafplot, etc
+## visualzations.rmd: 
+boxplot, leafplot, etc
